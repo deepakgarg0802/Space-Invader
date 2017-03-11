@@ -49,8 +49,20 @@ function update(){
 		return enemy.active;
 	});
 
+	//////update bonus enemies
+	enemies_2.forEach(function (bonusEnemy){
+		bonusEnemy.update();
+	});
+
+	enemies_2= enemies_2.filter(function(bonusEnemy){
+		return bonusEnemy.active;
+	});
+
 	if (Math.random()<0.1) {
 		enemies.push(Enemy());
+	}
+	if (Math.random()<0.01) {	/////////////chances of getting bonus enemy is 1/10 of regular
+		enemies_2.push(BonusEnemy());
 	}
 	handleCollisions();
 };
@@ -69,6 +81,10 @@ function draw(){
 	enemies.forEach(function(enemy){
 		enemy.draw();
 	});
+
+	enemies_2.forEach(function(bonusEnemy){
+		bonusEnemy.draw();
+	});
 }
 
 ////////////Score 
@@ -84,8 +100,12 @@ var scoreBoard={
 		canvas.font= "20px Arial";
 		canvas.fillText("Score : "+this.player_score,this.x,this.y);
 	},
-	update : function(){
-		this.player_score+=10;
+	update : function(enemy_type){
+		if(enemy_type==1)
+			this.player_score+=10;
+		else if (enemy_type==2) 
+			this.player_score+=20;
+
 		if (this.player_score % levelchangepoints==0) // level increased after every 500 points 
 		{
 			Level.update();
@@ -258,7 +278,52 @@ function Enemy(I){
 
 	return I;
 }
+///////////enemies of type 2 //////////////
+enemies_2= [];
 
+function BonusEnemy(I){
+	I= I || {};
+
+	I.active= true;
+	I.age= Math.floor(Math.random()* 128);
+	I.color= "#A2B";
+
+	I.x= CANVAS_WIDTH/4 + Math.random() * CANVAS_WIDTH/2;
+	I.y=0;
+	I.xVelocity=0;
+	I.yVelocity=enemy_velocity;
+
+	I.width=32;
+	I.height=32;
+	I.inBounds= function(){
+		return I.x >= 0 && I.x<=CANVAS_WIDTH &&
+		I.y >=0 && I.y<=CANVAS_HEIGHT;
+	};
+
+	I.draw=function(){
+		canvas.fillStyle= this.color;
+		canvas.fillRect(this.x,this.y,this.width,this.height);
+		//this.sprite.draw(canvas,this.x,this.y);
+
+	};
+
+	I.update= function(){
+		I.x += I.xVelocity;
+		I.y += I.yVelocity;
+
+		I.xVelocity=3* Math.sin(I.age * Math.PI/64);
+		I.age++;
+
+		I.active= I.active && I.inBounds();	
+	};
+
+	I.explode= function(){
+		Sound.play("../sounds/explosion");
+		this.active=false;
+	}
+
+	return I;
+}
 ////////collision detection
 
 function collides(a,b){
@@ -275,13 +340,33 @@ function handleCollisions(){
 				enemy.explode();
 				bullet.active=false;
 				//scoreBoard.player_score += 5;
-				scoreBoard.update();
+				scoreBoard.update(1);
+				console.log("boom");
+			}
+		});
+		enemies_2.forEach(function (bonusEnemy){
+			if (collides(bullet,bonusEnemy)){
+				bonusEnemy.explode();
+				bullet.active=false;
+				//scoreBoard.player_score += 5;
+				scoreBoard.update(2);
 				console.log("boom");
 			}
 		});
 	});
 
 	enemies.forEach(function(enemy){
+		if (collides(enemy,player)) {
+			enemy.explode();
+			player.explode();
+		}
+		else if(collides(enemy,bottom)){
+			enemy.explode();
+			player.explode();
+		};
+	});
+
+	enemies_2.forEach(function(enemy){
 		if (collides(enemy,player)) {
 			enemy.explode();
 			player.explode();
