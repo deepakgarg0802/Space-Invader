@@ -60,6 +60,7 @@ function draw(){
 	player.draw();	
 	scoreBoard.draw();
 	Level.draw();
+	Lives.draw();
 
 	playerBullets.forEach(function (bullet){
 		bullet.draw();
@@ -92,10 +93,11 @@ var scoreBoard={
 	}	
 };
 
+////////////Levels of scoreboard
 var Level={
 	color: "#00A",
 	player_level:1,
-	x:100,
+	x:50,
 	y: 20,
 	draw : function(){
 		canvas.fillStyle=this.color;
@@ -108,6 +110,36 @@ var Level={
 		console.log(this.player_level);
 	}	
 };
+
+
+////////////Lives left of player
+var Lives={
+	color: "#00A",
+	player_lives:3,
+	x:150,
+	y: 20,
+	draw : function(){
+		canvas.fillStyle=this.color;
+		canvas.font= "20px Arial";
+		canvas.fillText("Lives left : "+this.player_lives,this.x,this.y);
+	},
+	update : function(){
+		this.player_lives-=1;
+		if(this.player_lives<=-1){
+			alert("GAME OVER");
+            document.location.reload();
+		};
+	}	
+};
+
+//////////bottom line
+var bottom={
+	x:0,
+	y:300,
+	width:CANVAS_WIDTH,
+	height:1
+};
+
 ///////////////player
 var player={
 	color: "#00A",
@@ -144,7 +176,7 @@ player.midpoint=function(){
 };
 
 player.explode=function(){
-	this.active=false;
+	Lives.update();
 };
 
 var playerBullets= [];
@@ -251,6 +283,10 @@ function handleCollisions(){
 
 	enemies.forEach(function(enemy){
 		if (collides(enemy,player)) {
+			enemy.explode();
+			player.explode();
+		}
+		else if(collides(enemy,bottom)){
 			enemy.explode();
 			player.explode();
 		};
