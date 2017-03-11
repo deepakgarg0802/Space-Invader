@@ -58,6 +58,8 @@ function update(){
 function draw(){
 	canvas.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 	player.draw();	
+	scoreBoard.draw();
+	Level.draw();
 
 	playerBullets.forEach(function (bullet){
 		bullet.draw();
@@ -68,6 +70,44 @@ function draw(){
 	});
 }
 
+////////////Score 
+var levelchangepoints= 500 ;
+
+var scoreBoard={
+	color: "#00A",
+	player_score:0,
+	x:300,
+	y: 20,
+	draw : function(){
+		canvas.fillStyle=this.color;
+		canvas.font= "20px Arial";
+		canvas.fillText("Score : "+this.player_score,this.x,this.y);
+	},
+	update : function(){
+		this.player_score+=10;
+		if (this.player_score % levelchangepoints==0) // level increased after every 500 points 
+		{
+			Level.update();
+		};
+	}	
+};
+
+var Level={
+	color: "#00A",
+	player_level:1,
+	x:100,
+	y: 20,
+	draw : function(){
+		canvas.fillStyle=this.color;
+		canvas.font= "20px Arial";
+		canvas.fillText("Level : "+this.player_level,this.x,this.y);
+	},
+	update : function(){
+		this.player_level= (scoreBoard.player_score/levelchangepoints)+1;
+		enemy_velocity+=2;
+		console.log(this.player_level);
+	}	
+};
 ///////////////player
 var player={
 	color: "#00A",
@@ -140,6 +180,7 @@ function Bullet(I){
 
 ///////////enemies//////////////
 enemies= [];
+enemy_velocity=2;
 
 function Enemy(I){
 	I= I || {};
@@ -152,7 +193,7 @@ function Enemy(I){
 	I.x= CANVAS_WIDTH/4 + Math.random() * CANVAS_WIDTH/2;
 	I.y=0;
 	I.xVelocity=0;
-	I.yVelocity=2;
+	I.yVelocity=enemy_velocity;
 
 	I.width=32;
 	I.height=32;
@@ -201,6 +242,8 @@ function handleCollisions(){
 			if (collides(bullet,enemy)){
 				enemy.explode();
 				bullet.active=false;
+				//scoreBoard.player_score += 5;
+				scoreBoard.update();
 				console.log("boom");
 			}
 		});
