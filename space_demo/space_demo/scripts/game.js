@@ -87,7 +87,7 @@ function draw(){
 	});
 }
 
-////////////Score 
+///////------------------------Score --------------------------------------//////////////////////////
 var levelchangepoints= 500 ;
 
 var scoreBoard={
@@ -146,12 +146,14 @@ var Lives={
 	update : function(){
 		this.player_lives-=1;
 		if(this.player_lives<=-1){
+			//Sound.play("../sounds/invaderkilled");
 			alert("GAME OVER");
             document.location.reload();
 		};
 	}	
 };
 
+///////***********************entitities*******************************////////////
 //////////bottom line
 var bottom={
 	x:0,
@@ -160,7 +162,7 @@ var bottom={
 	height:1
 };
 
-///////////////player
+//----------------------player
 var player={
 	color: "#00A",
 	x:220,
@@ -230,7 +232,7 @@ function Bullet(I){
 	return I;
 }
 
-///////////enemies//////////////
+///////////--------------------------enemies---------------------------------//////////////
 enemies= [];
 enemy_velocity=2;
 
@@ -278,7 +280,7 @@ function Enemy(I){
 
 	return I;
 }
-///////////enemies of type 2 //////////////
+///////////----------------------------------enemies of type 2---------------------- //////////////
 enemies_2= [];
 
 function BonusEnemy(I){
@@ -318,13 +320,13 @@ function BonusEnemy(I){
 	};
 
 	I.explode= function(){
-		Sound.play("../sounds/explosion");
+		Sound.play("../sounds/bang");
 		this.active=false;
 	}
 
 	return I;
 }
-////////collision detection
+////////******************************collision detection*****************************
 
 function collides(a,b){
 	return a.x < b.x+b.width &&
